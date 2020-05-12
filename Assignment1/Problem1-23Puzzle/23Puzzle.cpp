@@ -134,7 +134,6 @@ public:
                 }
             cout << endl;
         }
-        cout << endl;
         return;
     }
 
@@ -167,10 +166,10 @@ public:
 
     friend bool operator<(Node a, Node b)
     {
-        if (a.depth + a.ManhattanDistance() > b.depth + b.ManhattanDistance())
-            return true;
-        else
+        if (a.depth + a.ManhattanDistance() == b.depth + b.ManhattanDistance())
             return a.depth > b.depth;
+        else
+            return a.depth + a.ManhattanDistance() > b.depth + b.ManhattanDistance();
     }
 
     friend bool operator==(Node a, Node b)
@@ -194,9 +193,9 @@ int main()
     {
         Node node = frontier.top();
         frontier.pop();
-        cout << l++ << ':' << endl;
-        node.print();
-        cout << node.depth << endl;
+        // cout << "=================" << endl;
+        // cout << l++ << "," << node.depth << ',' << node.ManhattanDistance() << endl;
+        // node.print();
         // getchar();
         if (node == goal)
         {
@@ -214,12 +213,12 @@ int main()
                         if (node.Position[i + d] == 0)
                         {
                             Node child(node, i, d);
-                            // child.print();
-                            auto existNodePointer = frontier.find(child);
-                            if ((existNodePointer == frontier.end()) && (explored.count(child.Position) == 0))
+                            if ((frontier.find(child) == frontier.end()) && (explored.count(child.Position) == 0))
                             {
                                 frontier.push(child);
                                 explored.insert(child.Position);
+                                // cout << child.depth << ',' << child.ManhattanDistance() << endl;
+                                // child.print();
                             }
                         }
                 }
@@ -239,10 +238,10 @@ int main()
                         else
                             continue;
                         Node child(node, i, d);
-                        // child.print();
-                        auto existNodePointer = frontier.find(child);
-                        if ((existNodePointer == frontier.end()) && (explored.count(child.Position) == 0))
+                        if ((frontier.find(child) == frontier.end()) && (explored.count(child.Position) == 0))
                         {
+                            cout << child.depth << ',' << child.ManhattanDistance() << endl;
+                            child.print();
                             frontier.push(child);
                             explored.insert(child.Position);
                         }
