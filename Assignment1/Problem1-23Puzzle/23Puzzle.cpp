@@ -2,10 +2,11 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <ctime>
 #include <iomanip>
 #include <iostream>
+#include <map>
 #include <queue>
-#include <set>
 #include <string>
 #include <vector>
 using namespace std;
@@ -30,7 +31,7 @@ string Color[21] = {"47;30",
                     "44;37",
                     "45;36",
                     "46;31"};
-vector<int> Direction[25] =
+vector<char> Direction[25] =
     {
         {1, 5},
         {1, 5, -1},
@@ -59,39 +60,39 @@ vector<int> Direction[25] =
         {-5, -1} // 第 5 行
 };
 
-template <
-    class T,
-    class Container = std::vector<T>,
-    class Compare = std::less<typename Container::value_type>>
-class MyQueue : public std::priority_queue<T, Container, Compare>
-{
-public:
-    typedef typename std::priority_queue<
-        T,
-        Container,
-        Compare>::container_type::const_iterator const_iterator;
+// template <
+//     class T,
+//     class Container = std::vector<T>,
+//     class Compare = std::less<typename Container::value_type>>
+// class MyQueue : public std::priority_queue<T, Container, Compare>
+// {
+// public:
+//     typedef typename std::priority_queue<
+//         T,
+//         Container,
+//         Compare>::container_type::const_iterator const_iterator;
 
-    const_iterator find(const T &val) const
-    {
-        auto first = this->c.cbegin();
-        auto last = this->c.cend();
-        while (first != last)
-        {
-            if ((*first) == val)
-                return first;
-            ++first;
-        }
-        return last;
-    }
-    const_iterator begin() const
-    {
-        return this->c.cbegin();
-    }
-    const_iterator end() const
-    {
-        return this->c.cend();
-    }
-};
+//     const_iterator find(const T &val) const
+//     {
+//         auto first = this->c.cbegin();
+//         auto last = this->c.cend();
+//         while (first != last)
+//         {
+//             if ((*first) == val)
+//                 return first;
+//             ++first;
+//         }
+//         return last;
+//     }
+//     const_iterator begin() const
+//     {
+//         return this->c.cbegin();
+//     }
+//     const_iterator end() const
+//     {
+//         return this->c.cend();
+//     }
+// };
 class Node
 {
 public:
@@ -178,47 +179,54 @@ public:
     }
 };
 
+struct Step
+{
+    unsigned short depth;
+    int manhattanDistance;
+    unsigned char slider;
+    char direction;
+};
+
 int main()
 {
     // Node start({1, 2, 3, 4, 5, 7, 7, 8, 9, 10, 6, 7, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 0, 0, 21});
-    Node start({2, 3, 11, 4, 5, 0, 8, 14, 9, 10, 0, 7, 7, 12, 13, 1, 15, 7, 16, 18, 6, 19, 20, 17, 21});
+    // Node start({2, 3, 11, 4, 5, 0, 8, 14, 9, 10, 0, 7, 7, 12, 13, 1, 15, 7, 16, 18, 6, 19, 20, 17, 21}); // 1
     // Node start({1, 2, 3, 4, 5, 6, 7, 7, 8, 9, 14, 15, 7, 12, 10, 0, 0, 11, 17, 13, 19, 20, 16, 21, 18}); // 2
+    Node start({0, 6, 15, 7, 7, 8, 9, 13, 4, 7, 1, 2, 3, 10, 5, 14, 11, 16, 12, 18, 19, 20, 17, 21, 0}); // 3
     Node goal({1, 2, 3, 4, 5, 7, 7, 8, 9, 10, 6, 7, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 0, 0});
 
-    MyQueue<Node> frontier;
+    priority_queue<Node> frontier;
     frontier.push(start);
-    set<vector<unsigned char>> explored;
-    int l = 0;
+    map<vector<unsigned char>, Step> explored;
+
+    clock_t startTime = clock();
+
     while (!frontier.empty())
     {
         Node node = frontier.top();
         frontier.pop();
-        // cout << "=================" << endl;
-        // cout << l++ << "," << node.depth << ',' << node.ManhattanDistance() << endl;
-        // node.print();
-        // getchar();
+        while (node.Position == frontier.top())
+            frontier.pop(); // 处理重复结点
         if (node == goal)
         {
             cout << node.depth << "goal" << endl;
             break;
         }
-        explored.insert(node.Position);
         for (int i = 0; i < 25; i++)
         {
             if (node.Position[i] != 0)
             {
                 if (node.Position[i] != 7)
                 {
-                    for (int d : Direction[i])
+                    for (char d : Direction[i])
                         if (node.Position[i + d] == 0)
                         {
                             Node child(node, i, d);
-                            if ((frontier.find(child) == frontier.end()) && (explored.count(child.Position) == 0))
+                            auto exist = explored.find(child.Position);
+                            frontier.push(child);
+                            if (exist != explored.end() && explored.at(child.Position).depth > child.depth)
                             {
-                                frontier.push(child);
-                                explored.insert(child.Position);
-                                // cout << child.depth << ',' << child.ManhattanDistance() << endl;
-                                // child.print();
+                                explored[child.Position] = Step({child.depth, child.ManhattanDistance(), node.Position[i], d});
                             }
                         }
                 }
@@ -226,7 +234,7 @@ int main()
                 {
                     if (node.Position[i + 1] == 7) // 首个 7
                     {
-                        int d = 0;
+                        char d = 0;
                         if (i > 4 && node.Position[i - 5] == 0 && node.Position[i - 4] == 0)
                             d = -5;
                         else if (i % 5 < 3 && node.Position[i + 2] == 0 && node.Position[i + 7] == 0)
@@ -238,19 +246,18 @@ int main()
                         else
                             continue;
                         Node child(node, i, d);
-                        if ((frontier.find(child) == frontier.end()) && (explored.count(child.Position) == 0))
+                        auto exist = explored.find(child.Position);
+                        frontier.push(child);
+                        if (exist != explored.end() && explored.at(child.Position).depth > child.depth)
                         {
-                            cout << child.depth << ',' << child.ManhattanDistance() << endl;
-                            child.print();
-                            frontier.push(child);
-                            explored.insert(child.Position);
+                            explored[child.Position] = Step({child.depth, child.ManhattanDistance(), node.Position[i], d});
                         }
                     }
                 }
             }
         }
-        // getchar();
     }
-
+    clock_t endTime = clock();
+    cout << "运行时间：" << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
     return 0;
 }
