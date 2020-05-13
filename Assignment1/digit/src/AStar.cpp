@@ -1,4 +1,8 @@
 #include "AStar.hpp"
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <vector>
 std::priority_queue<Node> AStar::frontier;
 std::map<std::vector<unsigned char>, Step> AStar::explored;
 
@@ -26,9 +30,9 @@ Node AStar::GraphSearch(Node start, Node goal)
                             Node child(node, i, d);
                             auto exist = explored.find(child.Position);
                             frontier.push(child);
-                            if (exist != explored.end() && explored.at(child.Position).depth > child.depth)
+                            if (exist == explored.end() || explored.at(child.Position).depth > child.depth)
                             {
-                                explored[child.Position] = Step({child.depth, child.ManhattanDistance(), node.Position[i], d});
+                                explored[child.Position] = Step({child.depth, child.ManhattanDistance(), (unsigned char)i, d});
                             }
                         }
                 }
@@ -50,9 +54,9 @@ Node AStar::GraphSearch(Node start, Node goal)
                         Node child(node, i, d);
                         auto exist = explored.find(child.Position);
                         frontier.push(child);
-                        if (exist != explored.end() && explored.at(child.Position).depth > child.depth)
+                        if (exist == explored.end() || explored.at(child.Position).depth > child.depth)
                         {
-                            explored[child.Position] = Step({child.depth, child.ManhattanDistance(), node.Position[i], d});
+                            explored[child.Position] = Step({child.depth, child.ManhattanDistance(), (unsigned char)i, d});
                         }
                     }
                 }
@@ -60,4 +64,35 @@ Node AStar::GraphSearch(Node start, Node goal)
         }
     }
     return start;
+}
+
+std::string AStar::Movement(std::vector<unsigned char> initialState, std::vector<unsigned char> finalState)
+{
+    using namespace AStar;
+    auto state = finalState;
+    std::string sequence = "";
+    while (explored.find(state) != explored.end() && state != initialState)
+    {
+        std::string directionCode;
+        switch (explored[state].direction)
+        {
+        case -5:
+            directionCode = "u";
+            break;
+        case 1:
+            directionCode = "r";
+            break;
+        case 5:
+            directionCode = "d";
+            break;
+        case -1:
+            directionCode = "l";
+            break;
+        }
+        sequence = "(" + std::to_string((int)(state[explored[state].sliderIndex + explored[state].direction])) + "," + directionCode + ")\n" + sequence;
+        Node currentNode(state);
+        Node parentNode(currentNode, explored[state].sliderIndex + explored[state].direction, -explored[state].direction);
+        state = parentNode.Position;
+    }
+    return sequence;
 }

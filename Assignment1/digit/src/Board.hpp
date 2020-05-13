@@ -27,7 +27,7 @@ struct Step
 {
     unsigned short depth;
     int manhattanDistance;
-    unsigned char slider;
+    unsigned char sliderIndex;
     char direction;
 };
 
