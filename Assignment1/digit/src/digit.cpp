@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     if (argc != 2)
         exit(EXIT_FAILURE);
     string number = argv[1];
-    Node start(fin("..\\input\\" + number + ".txt"));
+    Node start(fin("../input/" + number + ".txt"));
     Node goal({1, 2, 3, 4, 5, 7, 7, 8, 9, 10, 6, 7, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 0, 0});
 
     clock_t startTime = clock();
@@ -22,6 +22,6 @@ int main(int argc, char *argv[])
     cout << AStar::GraphSearch(start, goal).depth << endl;
     clock_t endTime = clock();
     cout << "运行时间：" << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
-    fout("..\\output\\" + number + ".txt", AStar::Movement(start.Position, goal.Position));
+    fout("../output/" + number + ".txt", AStar::Movement(start.Position, goal.Position));
     return 0;
 }
