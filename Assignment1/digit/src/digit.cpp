@@ -29,9 +29,9 @@ int main(int argc, char *argv[])
 
     clock_t endTime = clock();
     cout << "运行时间：" << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
-    if (algorithm == "A*")
+    if (algorithm == "AStar")
         fout("../output/" + number + ".txt", AStar::Movement(start.Position, goal.Position));
-    else if (algorithm == "IDA*")
+    else if (algorithm == "IDAStar")
         fout("../output/" + number + ".txt", IDAStar::Movement(start.Position, goal.Position));
     // cout << IDAStar::GraphSearch(start, goal).size() - 1 << endl;
     // cout << IDAStar::Movement(start.Position, goal.Position);
