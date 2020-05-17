@@ -11,29 +11,29 @@ std::map<std::vector<unsigned char>, Step> IDAStar::explored;
 std::vector<Node> IDAStar::GraphSearch(Node start, Node goal)
 {
     using namespace IDAStar;
-    limit = start.ManhattanDistance();
+    limit = start.h();
     path.emplace_back(start);
     while (true)
     {
         // std::cout << limit << std::endl;
-        unsigned int t = RecursiveSearch(0);
+        unsigned int t = RecursiveSearch();
         if (t == 0)
             return path;
         limit = t;
     }
 }
 
-unsigned int IDAStar::RecursiveSearch(unsigned int g)
+unsigned int IDAStar::RecursiveSearch()
 {
     using namespace IDAStar;
     Node node = path.back();
-    unsigned int f = g + (unsigned int)node.ManhattanDistance();
+    unsigned int f = node.g() + (unsigned int)node.h();
     if (f > limit)
         return f;
     // node.print();
     // std::cout << g << ',' << node.ManhattanDistance() << std::endl;
     // getchar();
-    if (node.ManhattanDistance() == 0)
+    if (node.ManhattanDistance() == 0) // ????
         return 0;
     unsigned int min = UINT_MAX;
     for (int i = 0; i < 25; i++)
@@ -50,8 +50,8 @@ unsigned int IDAStar::RecursiveSearch(unsigned int g)
                         {
                             path.emplace_back(child);
                             if (explored.find(child.Position) == explored.end() || explored.at(child.Position).depth > child.depth)
-                                explored[child.Position] = Step({child.depth, child.ManhattanDistance(), (unsigned char)i, d});
-                            unsigned int t = RecursiveSearch(g + 1);
+                                explored[child.Position] = Step({child.g(), child.h(), (unsigned char)i, d});
+                            unsigned int t = RecursiveSearch();
                             if (t == 0)
                                 return 0;
                             if (t < min)
@@ -80,8 +80,8 @@ unsigned int IDAStar::RecursiveSearch(unsigned int g)
                     {
                         path.emplace_back(child);
                         if (explored.find(child.Position) == explored.end() || explored.at(child.Position).depth > child.depth)
-                            explored[child.Position] = Step({child.depth, child.ManhattanDistance(), (unsigned char)i, d});
-                        unsigned int t = RecursiveSearch(g + 1);
+                            explored[child.Position] = Step({child.g(), child.h(), (unsigned char)i, d});
+                        unsigned int t = RecursiveSearch();
                         if (t == 0)
                             return 0;
                         if (t < min)

@@ -32,7 +32,7 @@ Node AStar::GraphSearch(Node start, Node goal)
                             frontier.push(child);
                             if (exist == explored.end() || explored.at(child.Position).depth > child.depth)
                             {
-                                explored[child.Position] = Step({child.depth, child.ManhattanDistance(), (unsigned char)i, d});
+                                explored[child.Position] = Step({child.g(), child.h(), (unsigned char)i, d});
                             }
                         }
                 }
@@ -56,7 +56,7 @@ Node AStar::GraphSearch(Node start, Node goal)
                         frontier.push(child);
                         if (exist == explored.end() || explored.at(child.Position).depth > child.depth)
                         {
-                            explored[child.Position] = Step({child.depth, child.ManhattanDistance(), (unsigned char)i, d});
+                            explored[child.Position] = Step({child.g(), child.h(), (unsigned char)i, d});
                         }
                     }
                 }

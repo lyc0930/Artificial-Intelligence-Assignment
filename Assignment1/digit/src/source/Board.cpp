@@ -66,6 +66,16 @@ void Node::print()
     return;
 }
 
+unsigned int Node::g() const
+{
+    return depth;
+}
+
+int Node::h() const
+{
+    return this->ManhattanDistance();
+}
+
 int Node::ManhattanDistance() const
 {
     int m = 0;
@@ -95,10 +105,10 @@ int Node::ManhattanDistance() const
 
 bool Node::operator<(const Node &that) const
 {
-    if (this->depth + this->ManhattanDistance() == that.depth + that.ManhattanDistance())
+    if (this->g() + this->h() == that.g() + that.h())
         return this->depth > that.depth;
     else
-        return this->depth + this->ManhattanDistance() > that.depth + that.ManhattanDistance();
+        return this->g() + this->h() > that.g() + that.h();
 }
 
 bool Node::operator==(const Node &that) const
