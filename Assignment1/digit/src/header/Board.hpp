@@ -1,9 +1,10 @@
 #ifndef BOARD_HPP
 #define BOARD_HPP
+#include <array>
 #include <vector>
 
 // 普通数字（除 7 外）在各个位置上的可移动方向
-extern std::vector<char> Direction[25];
+extern std::array<std::vector<char>, 25> Direction;
 
 // 结点类
 class Node
@@ -23,8 +24,14 @@ public:
     unsigned int g() const;
     // 到目标结点的估计代价
     int h() const;
+#ifdef SIMPLEWEIGHTED
+#else
     // 与目标结点的曼哈顿距离
     int ManhattanDistance() const;
+#ifdef LINEARCONFLICT
+    int LinearConflict() const;
+#endif
+#endif
 
     bool operator<(const Node &) const;
 
