@@ -1,4 +1,6 @@
 all : source/fileIO.cpp header/fileIO.hpp source/Board.cpp header/Board.hpp sudoku.cpp
+	g++ source/fileIO.cpp source/Board.cpp sudoku.cpp -O3 -D MRV -o sudoku
+dump : source/fileIO.cpp header/fileIO.hpp source/Board.cpp header/Board.hpp sudoku.cpp
 	g++ source/fileIO.cpp source/Board.cpp sudoku.cpp -O3 -o sudoku
 fileIO.o : source/fileIO.cpp header/fileIO.hpp
 	g++ -c source/fileIO.cpp

@@ -100,3 +100,100 @@ g++ source/fileIO.cpp source/AStar.cpp source/IDAStar.cpp source/Board.cpp digit
 注意，对同一组数据进行求解会覆盖相应的输出文件，且不同算法得到的解有行动顺序上的差异，注意保存运行结果。
 
 ## 数独问题
+
+### 问题内容
+
+使用 CSP 问题的回溯搜索(Backtracking Search)算法解决了如下 X 数独问题
+
+> ：在 $9 \times 9$格的方格中，需要根据已知数字，推理出所有剩余空格的数字，并满足每一行、每一列、每一个粗线宫$3 \times 3$内的数字均含 1-9，不重复。九宫格的两条对角线内的数字也均含 1-9，不重复。
+
+算法使用了 MRV 进行优化
+
+### 文件结构
+
+```bash
+sudoku
+├───input
+│       sudoku01.txt
+│       sudoku02.txt
+│       sudoku03.txt
+│
+├───output
+│       sudoku01.txt
+│       sudoku02.txt
+│       sudoku03.txt
+│
+└───src
+    │   Makefile
+    │   sudoku
+    │   sudoku.cpp
+    │   sudoku.exe
+    │
+    ├───header
+    │       Board.hpp
+    │       fileIO.hpp
+    │
+    └───source
+            Board.cpp
+            fileIO.cpp
+```
+
+### 编译
+
+`Makefile`文件中已设置好编译链接命令，运行如下的命令
+
+```bash
+make     # 默认编译，使用 MRV 优化后的回溯搜索
+make all # 同上
+make dump # 使用未经优化的简单回溯搜索
+```
+
+或直接使用 g++ 对程序进行编译
+
+```bash
+g++ source/fileIO.cpp source/Board.cpp sudoku.cpp -O3 [-D MRV] -o sudoku
+```
+
+其中若省略预编译参数`MRV`则采用简单回溯搜索。
+
+### 运行
+
+编译后在`sudoku/`目录下以如下命令运行`sudoku`可执行文件
+
+```bash
+./sudoku DataNumber
+```
+
+`DataNumber`是指定测试数据的参数，程序将使用`input/sudoku0DataNumber.txt`中的数据作为初始状态进行搜索。参数都是必须的，没有默认值。如
+
+```bash
+./sudoku 1
+```
+
+表示对`input/sudoku01.txt`中的数据作为初始状态进行 X 数独的求解。
+
+## 结果
+
+程序成功运行后可以在终端看到类似下方的运行结果
+
+```bash
+运行时间：0.007s
+```
+
+给出了程序的运行时间。
+
+数独的解以和输入数据相同的形式存取`output/sudoku0DataNumber.txt`中。如`output/sudoku01.txt`中的内容如下
+
+```bash
+2 8 1 5 3 4 9 6 7
+5 6 4 9 7 8 1 3 2
+7 9 3 1 6 2 4 8 5
+9 2 5 7 1 6 8 4 3
+4 1 7 3 8 5 6 2 9
+6 3 8 2 4 9 7 5 1
+3 4 9 6 2 1 5 7 8
+8 5 2 4 9 7 3 1 6
+1 7 6 8 5 3 2 9 4
+```
+
+注意，对同一组数据进行求解会覆盖相应的输出文件，且不同算法得到的解有所不同，注意保存运行结果。
