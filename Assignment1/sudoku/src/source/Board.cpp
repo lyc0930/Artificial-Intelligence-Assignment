@@ -1,4 +1,4 @@
-#include "Board.hpp"
+#include "../header/Board.hpp"
 #include <algorithm>
 #include <array>
 #include <iostream>

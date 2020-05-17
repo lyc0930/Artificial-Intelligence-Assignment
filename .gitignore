@@ -1,3 +1,5 @@
 *.exe
 *.o
 *.vscode
+Assignment1/digit/src/digit
+Assignment1/sudoku/src/sudoku

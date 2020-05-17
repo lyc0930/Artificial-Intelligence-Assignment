@@ -1,4 +1,4 @@
-#include "IDAStar.hpp"
+#include "../header/IDAStar.hpp"
 #include <algorithm>
 #include <climits>
 // #include <iostream>

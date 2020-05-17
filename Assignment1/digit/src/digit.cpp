@@ -1,7 +1,7 @@
-#include "AStar.hpp"
-#include "Board.hpp"
-#include "IDAStar.hpp"
-#include "fileIO.hpp"
+#include "header/AStar.hpp"
+#include "header/Board.hpp"
+#include "header/IDAStar.hpp"
+#include "header/fileIO.hpp"
 #include <ctime>
 #include <iostream>
 #include <string>

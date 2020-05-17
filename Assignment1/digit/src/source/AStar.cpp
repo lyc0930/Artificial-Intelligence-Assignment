@@ -1,4 +1,4 @@
-#include "AStar.hpp"
+#include "../header/AStar.hpp"
 #include <iomanip>
 #include <iostream>
 #include <string>

@@ -1,5 +1,5 @@
-#include "Board.hpp"
-#include "fileIO.hpp"
+#include "header/Board.hpp"
+#include "header/fileIO.hpp"
 #include <ctime>
 #include <iostream>
 using namespace std;

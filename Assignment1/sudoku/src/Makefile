@@ -1,9 +1,9 @@
-all : fileIO.cpp fileIO.hpp Board.cpp Board.hpp sudoku.cpp
-	g++ fileIO.cpp Board.cpp sudoku.cpp -O3 -o sudoku
-fileIO.o : fileIO.cpp fileIO.hpp
-	g++ -c fileIO.cpp
-Board.o : Board.cpp Board.hpp
-	g++ -c Board.cpp
+all : source/fileIO.cpp header/fileIO.hpp source/Board.cpp header/Board.hpp sudoku.cpp
+	g++ source/fileIO.cpp source/Board.cpp sudoku.cpp -O3 -o sudoku
+fileIO.o : source/fileIO.cpp header/fileIO.hpp
+	g++ -c source/fileIO.cpp
+Board.o : source/Board.cpp header/Board.hpp
+	g++ -c source/Board.cpp
 sudoku.o : sudoku.cpp
 	g++ -c sudoku.cpp
 sudoku : sudoku.o Board.o fileIO.o

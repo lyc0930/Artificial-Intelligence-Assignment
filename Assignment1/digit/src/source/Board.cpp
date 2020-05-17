@@ -1,4 +1,4 @@
-#include "Board.hpp"
+#include "../header/Board.hpp"
 #include <iomanip>
 #include <iostream>
 #include <vector>
