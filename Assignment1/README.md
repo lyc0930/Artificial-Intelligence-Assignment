@@ -91,7 +91,7 @@ g++ source/fileIO.cpp source/AStar.cpp source/IDAStar.cpp source/Board.cpp digit
 
 第一行表示算法得到的解的步数（行动次数），第二行给出了程序的运行时间。
 
-具体解的每步操作以用 `(number, direction)` 表示为`output/DataNumber.txt`中的一行，`number`$\in [1,21]$，`direction`$\in \{\texttt{u},\texttt{d},\texttt{l},\texttt{r}\}$，分别代表将标号为 `number` 的数字块上移、下移、左移、右移。移动序列之间用英文分号分隔。如`output/1.txt`中的内容如下
+具体解的每步操作以用 `(number, direction)` 表示为`output/DataNumber.txt`中的一行，`number`$\in [1,21]$，`direction`$\in \{\texttt{u},\texttt{d},\texttt{l},\texttt{r}\}$，分别代表将标号为 `number` 的数字块上移、下移、左移、右移。**每个移动序列独占一行**（实验原要求为移动序列之间用英文分号分隔，但考虑到可读性，改为每个行动一行，不影响实验内容）。如`output/1.txt`中的内容如下
 
 ```bash
 (1,u); (1,u); (6,u); (19,l); (15,d); (7,l); (14,d); (11,d); (3,r); (2,r); (1,u); (14,d); (11,d); (8,r); (7,u); (6,u); (14,l); (14,l); (16,l); (15,u); (20,l); (17,u); (21,l); (21,l)
