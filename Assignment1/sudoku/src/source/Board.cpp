@@ -35,8 +35,8 @@ bool Board::BackTrackingSolve(Location l)
 {
     if (l)
     {
-        if ((*this)[l] != 0)
-            l++;
+        // if ((*this)[l] != 0)
+        //     l++;
         for (int choice : l.choices())
         {
             (*this)[l] = choice;
@@ -61,6 +61,20 @@ Location::Location(const Location &l) : x(l.x), y(l.y) {}
 
 Location Location::next() const
 {
+#ifdef MRV
+    int mrv = 10; // Minimum Remaining Values
+    Location nextLocation(-1, -1);
+    Location l(1, 0);
+    for (l++; l; l++)
+    {
+        auto choices = l.choices();
+        if (choices.size() < mrv)
+        {
+            mrv = choices.size();
+            nextLocation = l;
+        }
+    }
+#else
     Location nextLocation(this->x, this->y);
     do
     {
@@ -77,10 +91,31 @@ Location Location::next() const
             }
         }
     } while (B[nextLocation] != 0);
+#endif
     return nextLocation;
 }
 
-Location Location::operator++()
+Location &Location::operator++()
+{
+    do
+    {
+        y++;
+        if (y > 9)
+        {
+            y = 1;
+            x++;
+            if (x > 9)
+            {
+                x = -1;
+                y = -1;
+                break;
+            }
+        }
+    } while (B[*this] != 0);
+    return *this;
+}
+
+Location Location::operator++(int n)
 {
     Location originLocation(this->x, this->y);
     do
@@ -101,24 +136,11 @@ Location Location::operator++()
     return originLocation;
 }
 
-Location Location::operator++(int n)
+Location &Location::operator=(const Location &that)
 {
-    do
-    {
-        y++;
-        if (y > 9)
-        {
-            y = 1;
-            x++;
-            if (x > 9)
-            {
-                x = -1;
-                y = -1;
-                break;
-            }
-        }
-    } while (B[*this] != 0);
-    return this->next();
+    this->x = that.x;
+    this->y = that.y;
+    return *this;
 }
 
 Location::operator bool() const
@@ -153,6 +175,8 @@ std::set<int> Location::grid_choices() const
 std::set<int> Location::choices() const
 {
     std::set<int> _choices, choices;
+    if (B[*this] != 0)
+        return choices;
     std::set<int> RowChoices = row_choices(), ColumnChoices = column_choices(), GridChoices = grid_choices();
     std::set_intersection(RowChoices.begin(), RowChoices.end(), ColumnChoices.begin(), ColumnChoices.end(), inserter(_choices, _choices.begin()));
     std::set_intersection(_choices.begin(), _choices.end(), GridChoices.begin(), GridChoices.end(), inserter(choices, choices.begin()));

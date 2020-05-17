@@ -10,8 +10,9 @@ public:
     Location(int, int);
     Location(const Location &);
     Location next() const;
-    Location operator++();
+    Location &operator++();
     Location operator++(int);
+    Location &operator=(const Location &);
     explicit operator bool() const;
     std::set<int> row_choices() const;
     std::set<int> column_choices() const;
