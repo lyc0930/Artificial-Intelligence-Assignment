@@ -1,4 +1,10 @@
 all : source/fileIO.cpp header/fileIO.hpp source/AStar.cpp header/AStar.hpp source/IDAStar.cpp header/IDAStar.hpp source/Board.cpp header/Board.hpp digit.cpp
+	g++ source/fileIO.cpp source/AStar.cpp source/IDAStar.cpp source/Board.cpp digit.cpp -O3 -D LINEARCONFLICT -o digit
+SW :
+	g++ source/fileIO.cpp source/AStar.cpp source/IDAStar.cpp source/Board.cpp digit.cpp -O3 -D SIMPLEWEIGHTED -o digit
+LC :
+	g++ source/fileIO.cpp source/AStar.cpp source/IDAStar.cpp source/Board.cpp digit.cpp -O3 -D LINEARCONFLICT -o digit
+MD :
 	g++ source/fileIO.cpp source/AStar.cpp source/IDAStar.cpp source/Board.cpp digit.cpp -O3 -o digit
 fileIO.o : source/fileIO.cpp header/fileIO.hpp
 	g++ -c source/fileIO.cpp
