@@ -10,7 +10,7 @@
 
 ## 实验内容
 
-### [搜索](/Assignment)
+### [搜索](https://github.com/lyc0930/Artificial-Intelligence-Assignment/tree/master/Assignment1)
 
 -   数码问题
 -   数独问题
