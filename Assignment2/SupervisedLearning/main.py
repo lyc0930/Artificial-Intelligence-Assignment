@@ -2,6 +2,7 @@ import numpy as np
 import time
 import csv
 from sklearn import preprocessing
+import KNN
 
 
 def loadData(file):
@@ -15,7 +16,7 @@ def loadData(file):
     - `Data_withoutG1G2` 不包含属性G1 G2的数据集
     - `Label` 指示是否及格的标签集
     '''
-    print('start reading file')
+    print('start reading ' + file)
     Attributes = [[] for i in range(30)]  # 转置的属性列表
     Grades = []
     Label = []
@@ -36,15 +37,34 @@ def loadData(file):
     return list(np.hstack((Data_withoutG, Grades))), Data_withoutG, Label
 
 
+def modelTest(testLabel, predictLabel):
+    '''
+    ## 测试模型正确率
+    ### Arguments
+    - `testLabel` 测试集标签
+    - `predictLabel` 预测模型预测标签
+
+    ### Returns
+    - 模型正确率
+    '''
+
+    errorCnt = 0
+    for i in range(len(testLabel)):
+        if predictLabel[i] != testLabel[i]:
+            errorCnt += 1
+
+    return 1 - (errorCnt / len(testData))
+
+
 if __name__ == "__main__":
     start = time.time()
 
-    # 获取训练集
-    trainData, _, trainLabel = loadData('../DataSet/student/student-mat.csv')
-
-    print(trainData[2])
-    print(trainLabel[2])
+    trainData, _, trainLabel = loadData(
+        '../DataSet/student/student-mat.csv')  # 训练数据
+    testData, _, testLabel = loadData(
+        '../DataSet/student/student-por.csv')  # 测试数据
+    predictLabel = KNN.predict(trainData, trainLabel, testData, 20)
+    print('{:%}'.format(modelTest(testLabel, predictLabel)))
 
     end = time.time()
-
     print('time span:', end - start)
