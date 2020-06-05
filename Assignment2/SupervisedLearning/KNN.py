@@ -47,7 +47,7 @@ def NearestNeighbor(trainData, trainLabel, testDatum, K):
     return labelList.index(max(labelList))  # 返回具有最多相同近邻数的标签
 
 
-def predict(trainData, trainLabel, testData, K):
+def predict(trainData, trainLabel, testData, K=27):
     '''
     ## 测试模型正确率
     ### Arguments

@@ -48,23 +48,34 @@ def modelTest(testLabel, predictLabel):
     - 模型正确率
     '''
 
-    errorCnt = 0
+    truePositive = falsePositive = falseNegative = trueNegative = 0
     for i in range(len(testLabel)):
-        if predictLabel[i] != testLabel[i]:
-            errorCnt += 1
+        if predictLabel[i] == 1:
+            if testLabel[i] == 1:
+                truePositive += 1
+            else:
+                falsePositive += 1
+        else:
+            if testLabel[i] == 1:
+                falseNegative += 1
+            else:
+                trueNegative += 1
 
-    return 1 - (errorCnt / len(testData))
+    precision = truePositive / (truePositive + falsePositive)
+    recall = truePositive / (truePositive + falseNegative)
+
+    return (2 * precision * recall) / (precision + recall)
 
 
 if __name__ == "__main__":
     start = time.time()
 
-    trainData, _, trainLabel = loadData(
+    _, trainData, trainLabel = loadData(
         '../DataSet/student/student-mat.csv')  # 训练数据
-    testData, _, testLabel = loadData(
+    _, testData, testLabel = loadData(
         '../DataSet/student/student-por.csv')  # 测试数据
-    predictLabel = KNN.predict(trainData, trainLabel, testData, 20)
-    print('{:%}'.format(modelTest(testLabel, predictLabel)))
+    predictLabel = KNN.predict(trainData, trainLabel, testData)
 
     end = time.time()
-    print('time span:', end - start)
+    print('predicting time: {:.4}'.format(end - start))
+    print('F1 score: {:%}'.format(modelTest(testLabel, predictLabel)))
