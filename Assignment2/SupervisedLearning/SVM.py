@@ -147,13 +147,13 @@ class SupportVectorMachine:
             BarColumn(bar_width=None),
             "[progress.percentage]{task.completed}/{task.total}",
             "•",
-            "[progress.remaining]{task.elapsed:.2f}",
+            "[time]{task.elapsed:.2f}",
         ) as progress:  # rich 进度条
             allSatisfied = False  # 全部满足 KKT 条件
             while not allSatisfied:
                 allSatisfied = True
                 iterateTask = progress.add_task(
-                    "[cyan]iterating...", total=self.__x.shape[0])
+                    "[yellow]iterating...", total=self.__x.shape[0])
                 for i in range(self.__x.shape[0]):  # 外层循环
                     progress.update(iterateTask, advance=1)
                     if not (self.__ifSatisfyKKT(i)):  # 选择第一个变量
@@ -222,6 +222,39 @@ class SupportVectorMachine:
         distance = np.sum([self.__alpha[i] * self.__y[i] * self.Kernel(testDatum, self.__x[i])
                            for i in range(self.__x.shape[0]) if self.__alpha[i] > 0]) + self.__b  # 支持向量 alpha > 0
         return np.sign(distance)
+
+
+def predict(trainData, trainLabel, testData, C=200, epsilon=0.0001, sigma=10):
+    '''
+    ## 测试模型正确率
+    ### Arguments
+    - `trainData` 训练集数据集
+    - `trainLabel` 训练集标记
+    - `testData` 测试集数据集
+    - `C` 软间隔惩罚参数
+    - `epsilon` 松弛变量
+    - `sigma` 高斯核函数参数
+
+    ### Returns
+    - `predictLabel` 预测标签
+    '''
+    predictLabel = []
+    machine = SupportVectorMachine(C=C, epsilon=epsilon, sigma=sigma)
+    machine.train(trainData, trainLabel)
+    with Progress(
+        "[progress.description]{task.description}",
+        BarColumn(bar_width=None),
+        "[progress.percentage]{task.completed}/{task.total}",
+        "•",
+        TimeRemainingColumn(),
+    ) as progress:  # rich 进度条
+        testTask = progress.add_task(
+            "[cyan]predicting...", total=len(testData))
+        for testDatum in testData:
+            predictLabel.append(machine.classify(testDatum))  # 预测标签分类
+            progress.update(testTask, advance=1)
+
+    return predictLabel
 
 
 if __name__ == '__main__':
