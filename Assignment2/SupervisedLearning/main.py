@@ -82,10 +82,10 @@ def modelTest(testLabel, predictLabel):
                 falseNegative += 1
             else:
                 trueNegative += 1
-    print(truePositive)
-    print(trueNegative)
-    print(falsePositive)
-    print(falseNegative)
+    print('TP =', truePositive)
+    print('TN =', trueNegative)
+    print('FP =', falsePositive)
+    print('FN =', falseNegative)
     precision = truePositive / (truePositive + falsePositive)
     recall = truePositive / (truePositive + falseNegative)
 
