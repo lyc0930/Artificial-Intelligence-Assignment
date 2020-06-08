@@ -3,13 +3,18 @@ import time
 import csv
 from sklearn import preprocessing
 import KNN
+import SVM
 
 
-def loadData(file):
+def loadData(file, Normalize=False, Methods='NearestNeighbors'):
     '''
     ## 加载数据集
     ### Arguments
     - `file` 数据集文件
+    - `Normalize` 是否进行标准化
+    - `Methods` 为不同学习方法做处理
+        - `'NearestNeighbors'` k-近邻算法，类别标签为 0-不及格与 1-及格
+        - `'SupportVectorMachine'` 支持向量机算法，类别标签为 -1-不及格与 1-及格
 
     ### Returns
     - `Data_withG1G2` 包含属性G1 G2的数据集
@@ -25,15 +30,32 @@ def loadData(file):
         lines = csv.reader(fileStream, delimiter=';')
         next(lines)  # 跳过表头
         for line in lines:
-            for i in [0, 1, 3, 4, 5, 8, 9, 10, 11, 15, 16, 17, 18, 19, 20, 21, 22]:
+            for i in [0, 1, 3, 4, 5, 8, 9, 10, 11, 15, 16, 17, 18, 19, 20, 21, 22]:  # binary or nominal
                 Attributes[i].append(line[i])
-            for i in [2, 6, 7, 12, 13, 14, 23, 24, 25, 26, 27, 28, 29]:
+            for i in [2, 6, 7, 12, 13, 14, 23, 24, 25, 26, 27, 28, 29]:  # numeric
                 Attributes[i].append(int(line[i]))
             Grades.append([int(num) for num in line[30:32]])  # 31:G1 32:G2
-            Label.append(1 if int(line[-1]) >= 10 else 0)  # G3 >= 10 为及格
+            # G3 >= 10 为及格
+            Label.append(
+                1 if int(line[-1]) >= 10 else (-1 if Methods == 'SupportVectorMachine' else 0))
         for i in [0, 1, 3, 4, 5, 8, 9, 10, 11, 15, 16, 17, 18, 19, 20, 21, 22]:
             Attributes[i] = labelEncoder.fit_transform(Attributes[i])  # 编码为整数
         Data_withoutG = np.array(Attributes).T  # 转置属性
+
+        if Normalize == True:
+            upperBounds = [1, 1, 22, 1, 1, 1, 4, 4, 4, 4, 3, 2, 4,
+                           4, 3, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 93]  # 属性上界
+            lowerBounds = [0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+                           1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0]  # 属性下界
+
+            Data_withoutG = Data_withoutG.astype(np.float64)  # 转换为浮点类型
+
+            for i in range(Data_withoutG.shape[0]):
+                for j in range(30):
+                    Data_withoutG[i, j] = (
+                        Data_withoutG[i, j] - lowerBounds[j]) / (upperBounds[j] - lowerBounds[j])
+            Grades = np.array(Grades, dtype=float) / 20
+
     return list(np.hstack((Data_withoutG, Grades))), Data_withoutG, Label
 
 
@@ -60,7 +82,10 @@ def modelTest(testLabel, predictLabel):
                 falseNegative += 1
             else:
                 trueNegative += 1
-
+    print(truePositive)
+    print(trueNegative)
+    print(falsePositive)
+    print(falseNegative)
     precision = truePositive / (truePositive + falsePositive)
     recall = truePositive / (truePositive + falseNegative)
 
@@ -70,11 +95,14 @@ def modelTest(testLabel, predictLabel):
 if __name__ == "__main__":
     start = time.time()
 
-    _, trainData, trainLabel = loadData(
-        '../DataSet/student/student-mat.csv')  # 训练数据
-    _, testData, testLabel = loadData(
-        '../DataSet/student/student-por.csv')  # 测试数据
-    predictLabel = KNN.predict(trainData, trainLabel, testData)
+    trainData, _, trainLabel = loadData(
+        '../DataSet/student/student-mat.csv', Normalize=True, Methods='SupportVectorMachine')  # 训练数据
+
+    testData, _, testLabel = loadData(
+        '../DataSet/student/student-por.csv', Normalize=True, Methods='SupportVectorMachine')  # 测试数据
+
+    # predictLabel = KNN.predict(trainData, trainLabel, testData)
+    predictLabel = SVM.predict(trainData, trainLabel, testData)
 
     end = time.time()
     print('predicting time: {:.4}'.format(end - start))
