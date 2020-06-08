@@ -174,13 +174,15 @@ class SupportVectorMachine:
             BarColumn(bar_width=None),
             "[progress.percentage]{task.completed}/{task.total}",
             "•",
-            "[time]{task.elapsed:.2f}",
+            "[time]{task.elapsed:.2f}s",
         ) as progress:  # rich 进度条
             allSatisfied = False  # 全部满足 KKT 条件
+            iteration = 1  # 迭代次数
             while not allSatisfied:
                 allSatisfied = True
                 iterateTask = progress.add_task(
-                    "[yellow]iterating...", total=self.__x.shape[0])
+                    "[yellow]{} iterating...".format(iteration), total=self.__x.shape[0])
+                iteration += 1
                 for i in range(self.__x.shape[0]):  # 外层循环
                     progress.update(iterateTask, advance=1)
                     if not (self.__ifSatisfyKKT(i)):  # 选择第一个变量

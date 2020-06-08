@@ -82,14 +82,39 @@ def modelTest(testLabel, predictLabel):
                 falseNegative += 1
             else:
                 trueNegative += 1
-    print('TP =', truePositive)
-    print('TN =', trueNegative)
-    print('FP =', falsePositive)
-    print('FN =', falseNegative)
+
+    print('TP = {:3}  TN = {:3}'.format(truePositive, trueNegative))
+    print('FP = {:3}  FN = {:3}'.format(falsePositive, falseNegative))
+
+    if truePositive == 0:
+        return 0
+
     precision = truePositive / (truePositive + falsePositive)
     recall = truePositive / (truePositive + falseNegative)
 
     return (2 * precision * recall) / (precision + recall)
+
+
+def gridSearch_Gaussian(trainData, trainLabel, testData, testLabel):
+    '''
+    ## 网格搜索高斯核参数
+    '''
+    C = [np.power(2.0, i) for i in range(-5, 16, 2)]
+    Sigma = [np.power(2.0, i) for i in range(-3, 8)]
+    Epsilon = [np.power(10.0, i) for i in range(-6, 0)]
+    subRange = 100
+
+    maximumArguments = (0, 0, 0)
+    maximumF1Score = 0
+    for c, sigma, epsilon in [(c, sigma, epsilon) for c in C for sigma in Sigma for epsilon in Epsilon]:
+        print(c, sigma, epsilon)
+        predictLabel = SVM.predict(
+            trainData[:subRange], trainLabel[:subRange], testData, C=c, sigma=sigma, epsilon=epsilon)
+        f1Score = modelTest(testLabel, predictLabel)
+        if f1Score > maximumF1Score:
+            maximumF1Score = f1Score
+            maximumArguments = (c, sigma, epsilon)
+    print(maximumF1Score, maximumArguments)
 
 
 if __name__ == "__main__":
@@ -102,7 +127,10 @@ if __name__ == "__main__":
         '../DataSet/student/student-por.csv', Normalize=True, Methods='SupportVectorMachine')  # 测试数据
 
     # predictLabel = KNN.predict(trainData, trainLabel, testData)
-    predictLabel = SVM.predict(trainData, trainLabel, testData)
+    predictLabel = SVM.predict(
+        trainData, trainLabel, testData, C=200, sigma=10, epsilon=0.001)
+
+    # gridSearch_Gaussian(trainData, trainLabel, testData, testLabel)
 
     end = time.time()
     print('predicting time: {:.4}'.format(end - start))
