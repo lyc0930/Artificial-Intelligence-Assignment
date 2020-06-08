@@ -15,17 +15,20 @@ class SupportVectorMachine:
     - `train()` 训练模型
     '''
 
-    def __init__(self, sigma=10, C=200, epsilon=0.0001):
+    def __init__(self, C=200, epsilon=0.0001, sigma=10, p=2):
         '''
         ## 类构造函数
         ### Arguments
-        - `sigma` 高斯核参数
         - `C` 软间隔惩罚参数
         - `epsilon` 松弛变量
+        - `sigma` 高斯核参数
+        - `p` 多项式核参数
         '''
-        self.__sigma = sigma
+
         self.__C = C
         self.__epsilon = epsilon
+        self.__sigma = sigma
+        self.__p = p
 
     def Kernel(self, j, k):
         '''
@@ -42,13 +45,15 @@ class SupportVectorMachine:
 
     def __LinearKernel(self, j, k):
         '''
-        # 线性核
-        # Arguments
+        ## 线性核
+        ### Arguments
         - `j` 数据点 $x_j$
         - `k` 数据点 $x_k$
-        # Formula
+
+        ### Formula
         - 向量内积
-        # Returns
+
+        ### Returns
         - 核函数值
         '''
 
@@ -75,6 +80,28 @@ class SupportVectorMachine:
             sigma = self.__sigma
 
         return np.exp(-np.sum(np.square(j - k)) / (2 * sigma**2))
+
+    def __PolynomialKernel(self, j, k, p=None):
+        '''
+        ## 多项式核
+        ### Arguments
+        - `j` 数据点 $x_j$
+        - `k` 数据点 $x_k$
+        - `p` 多项式次数
+
+        ### Formula
+            $$
+                (x_j * x_k + 1)^p
+            $$
+
+        ### Returns
+        - 核函数值
+        '''
+
+        if p == None:
+            p = self.__p
+
+        return np.power(np.dot(j, k) + 1, p)
 
     def __ifSatisfyKKT(self, i, C=None, epsilon=None):
         '''
@@ -224,7 +251,7 @@ class SupportVectorMachine:
         return np.sign(distance)
 
 
-def predict(trainData, trainLabel, testData, C=200, epsilon=0.0001, sigma=10):
+def predict(trainData, trainLabel, testData, C=200, epsilon=0.0001, sigma=10, p=2):
     '''
     ## 测试模型正确率
     ### Arguments
@@ -234,6 +261,7 @@ def predict(trainData, trainLabel, testData, C=200, epsilon=0.0001, sigma=10):
     - `C` 软间隔惩罚参数
     - `epsilon` 松弛变量
     - `sigma` 高斯核函数参数
+    - `p` 多项式核参数
 
     ### Returns
     - `predictLabel` 预测标签
