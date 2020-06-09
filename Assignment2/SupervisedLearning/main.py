@@ -8,15 +8,18 @@ import SVM
 
 def loadData(file, Normalize=False, Methods='NearestNeighbors'):
     '''
-    ## 加载数据集
-    ### Arguments
+    加载数据集
+    ========
+    Arguments
+    ---------
     - `file` 数据集文件
     - `Normalize` 是否进行标准化
     - `Methods` 为不同学习方法做处理
         - `'NearestNeighbors'` k-近邻算法，类别标签为 0-不及格与 1-及格
         - `'SupportVectorMachine'` 支持向量机算法，类别标签为 -1-不及格与 1-及格
 
-    ### Returns
+    Returns
+    -------
     - `Data_withG1G2` 包含属性G1 G2的数据集
     - `Data_withoutG1G2` 不包含属性G1 G2的数据集
     - `Label` 指示是否及格的标签集
@@ -61,12 +64,15 @@ def loadData(file, Normalize=False, Methods='NearestNeighbors'):
 
 def modelTest(testLabel, predictLabel):
     '''
-    ## 测试模型正确率
-    ### Arguments
+    测试模型正确率
+    ===========
+    Arguments
+    ---------
     - `testLabel` 测试集标签
     - `predictLabel` 预测模型预测标签
 
-    ### Returns
+    Returns
+    -------
     - 模型正确率
     '''
 
@@ -97,7 +103,8 @@ def modelTest(testLabel, predictLabel):
 
 def gridSearch_Gaussian(trainData, trainLabel, testData, testLabel):
     '''
-    ## 网格搜索高斯核参数
+    网格搜索高斯核参数
+    ==============
     '''
     C = [np.power(2.0, i) for i in range(-5, 16, 2)]
     Sigma = [np.power(2.0, i) for i in range(-3, 8)]
@@ -121,14 +128,14 @@ if __name__ == "__main__":
     start = time.time()
 
     trainData, _, trainLabel = loadData(
-        '../DataSet/student/student-mat.csv', Normalize=True, Methods='SupportVectorMachine')  # 训练数据
+        '../DataSet/student/student-por.csv', Normalize=True, Methods='SupportVectorMachine')  # 训练数据
 
     testData, _, testLabel = loadData(
-        '../DataSet/student/student-por.csv', Normalize=True, Methods='SupportVectorMachine')  # 测试数据
+        '../DataSet/student/student-mat.csv', Normalize=True, Methods='SupportVectorMachine')  # 测试数据
 
     # predictLabel = KNN.predict(trainData, trainLabel, testData)
     predictLabel = SVM.predict(
-        trainData, trainLabel, testData, C=200, sigma=10, epsilon=0.001)
+        trainData, trainLabel, testData, kernel='Gaussian', C=200, sigma=10, epsilon=0.001)
 
     # gridSearch_Gaussian(trainData, trainLabel, testData, testLabel)
 

@@ -1,3 +1,27 @@
+'''
+SVM(Support Vector Machine)
+===
+    使用支持向量机算法预测分类标签
+Provides
+--------
+- 支持向量机类::
+
+    >>> svm = SupportVectorMachine(kernel='Gaussian', C=200, epsilon=0.0001, sigma=10, p=2)
+
+- 在训练集`trainData`及训练集标签`trainLabel`上训练模型::
+
+    >>> svm.train(trainData, trainLabel)
+
+- 预测测试数据`testDatum`的分类标签::
+
+    >>> svm.classify(testDatum)
+
+- 使用训练集`trainData`及训练集标签`trainLabel`，预测测试数据集`testData`的分类标签::
+
+    >>> predict(trainData, trainLabel, testData, kernel='Gaussian', C=200, epsilon=0.0001, sigma=10, p=2)
+
+'''
+
 import numpy as np
 from rich.progress import (
     BarColumn,
@@ -9,16 +33,22 @@ from rich.progress import (
 
 class SupportVectorMachine:
     '''
-    ## 支持向量机
-    ### Methods
+    支持向量机
+    ========
+    Methods
+    -------
     - `Kernel(j, k)` 计算核函数
-    - `train()` 训练模型
+    - `train(trainData, trainLabel)` 训练模型
+    - `classify(testDatum)` 预测类别
     '''
 
-    def __init__(self, C=200, epsilon=0.0001, sigma=10, p=2):
+    def __init__(self, kernel='Gaussian', C=200, epsilon=0.0001, sigma=10, p=2):
         '''
-        ## 类构造函数
-        ### Arguments
+        类构造函数
+        ========
+        Arguments
+        ---------
+        - `kernel` 核函数
         - `C` 软间隔惩罚参数
         - `epsilon` 松弛变量
         - `sigma` 高斯核参数
@@ -27,17 +57,27 @@ class SupportVectorMachine:
 
         self.__C = C
         self.__epsilon = epsilon
-        self.__sigma = sigma
-        self.__p = p
+
+        if kernel == 'Gaussian':
+            self.Kernel = self.__GaussianKernel
+            self.__sigma = sigma
+        elif kernel == 'Linear':
+            self.Kernel = self.__LinearKernel
+        elif kernel == 'Polynomial':
+            self.Kernel = self.__PolynomialKernel
+            self.__p = p
 
     def Kernel(self, j, k):
         '''
-        ## 核函数
-        ### Arguments
+        核函数
+        =====
+        Arguments
+        ---------
         - `j` 数据点 $x_j$
         - `k` 数据点 $x_k$
 
-        ### Returns
+        Returns
+        -------
         - 核函数值
         '''
         # return self.__LinearKernel(j, k)
@@ -45,15 +85,19 @@ class SupportVectorMachine:
 
     def __LinearKernel(self, j, k):
         '''
-        ## 线性核
-        ### Arguments
+        线性核
+        =====
+        Arguments
+        ---------
         - `j` 数据点 $x_j$
         - `k` 数据点 $x_k$
 
-        ### Formula
+        Formula
+        -------
         - 向量内积
 
-        ### Returns
+        Returns
+        -------
         - 核函数值
         '''
 
@@ -61,19 +105,21 @@ class SupportVectorMachine:
 
     def __GaussianKernel(self, j, k, sigma=None):
         '''
-        ## 高斯核函数
-        ### Arguments
+        高斯核函数
+        ========
+        Arguments
+        ---------
         - `j` 数据点 $x_j$
         - `k` 数据点 $x_k$
         - `sigma`
 
-        ### Formula
-            $$
-                exp(-||x_j - x_k||^2 / 2 sigma^2)
-            $$
-        - 如果 sigma 选得很大的话，高次特征上的权重实际上衰减得非常快，所以实际上（数值上近似一下）相当于一个低维的子空间；反过来，如果 sigma 选得很小，则可以将任意的数据映射为线性可分——当然，这并不一定是好事，因为随之而来的可能是非常严重的过拟合问题。
+        Formula
+        -------
+            exp(-||x_j - x_k||^2 / 2 sigma^2)
+        - 如果 sigma 选得很大的话，高次特征上的权重实际上衰减得非常快，所以实际上（数值上近似一下）相当于一个低维的子空间；反过来，如果 sigma 选得很小，则可以将任意的数据映射为线性可分，可能导致非常严重的过拟合问题。
 
-        ### Returns
+        Returns
+        -------
         - 核函数值
         '''
         if sigma == None:
@@ -83,18 +129,20 @@ class SupportVectorMachine:
 
     def __PolynomialKernel(self, j, k, p=None):
         '''
-        ## 多项式核
-        ### Arguments
+        多项式核
+        ======
+        Arguments
+        ---------
         - `j` 数据点 $x_j$
         - `k` 数据点 $x_k$
         - `p` 多项式次数
 
-        ### Formula
-            $$
-                (x_j * x_k + 1)^p
-            $$
+        Formula
+        -------
+            (x_j * x_k + 1)^p
 
-        ### Returns
+        Returns
+        -------
         - 核函数值
         '''
 
@@ -105,16 +153,19 @@ class SupportVectorMachine:
 
     def __ifSatisfyKKT(self, i, C=None, epsilon=None):
         '''
-        ## 判断训练样本点$(x_i, y_i)$是否违反 KKT 条件
-        ### Arguments
+        判断训练样本点(x_i, y_i)是否违反 KKT 条件
+        ====================================
+        Arguments
+        ---------
         - `x`
         - `y`
         - `i`
         - `C`
         - `epsilon` 松弛变量
 
-        ### Returns
-        训练样本点$(x_i, y_i)$是否符合 KKT 条件
+        Returns
+        -------
+        训练样本点(x_i, y_i)是否符合 KKT 条件
         '''
         if C == None:
             C = self.__C
@@ -132,15 +183,19 @@ class SupportVectorMachine:
 
     def __Error(self, i):
         '''
-        ## 计算误差项
-        ### Arguments
+        计算误差项
+        ========
+        Arguments
+        ---------
         - `i`
 
-        ### Formula
-        - $E_i = g(x_i) - y_i$
+        Formula
+        -------
+        - E_i = g(x_i) - y_i
 
-        ### Returns
-        - $E_i$
+        Returns
+        -------
+        - E_i
         '''
 
         return np.sum([self.__alpha[j] * self.__y[j] * self.__K[i, j]
@@ -148,15 +203,19 @@ class SupportVectorMachine:
 
     def train(self, trainData, trainLabel):
         '''
-        ## 训练
-        ### Arguments
+        训练
+        ===
+        Arguments
+        ---------
         - `trainData` 训练集数据
         - `trainLabel` 训练集标签
 
-        ### Algorithm
+        Algorithm
+        ---------
         - Sequential minimal optimization, SMO
 
-        ### Returns
+        Returns
+        -------
         '''
         self.__x, self.__y = np.array(trainData), np.array(trainLabel)
         self.__alpha = np.zeros(self.__x.shape[0])
@@ -241,11 +300,14 @@ class SupportVectorMachine:
 
     def classify(self, testDatum):
         '''
-        ## 预测测试数据的标签
-        ### Arguments
+        预测测试数据的标签
+        ==============
+        Arguments
+        ---------
         - `testDatum` 测试数据
 
-        ### Returns
+        Returns
+        -------
         - 分类决策函数值
         '''
         distance = np.sum([self.__alpha[i] * self.__y[i] * self.Kernel(testDatum, self.__x[i])
@@ -253,23 +315,28 @@ class SupportVectorMachine:
         return np.sign(distance)
 
 
-def predict(trainData, trainLabel, testData, C=200, epsilon=0.0001, sigma=10, p=2):
+def predict(trainData, trainLabel, testData, kernel='Gaussian', C=200, epsilon=0.0001, sigma=10, p=2):
     '''
-    ## 测试模型正确率
-    ### Arguments
+    测试模型正确率
+    ===========
+    Arguments
+    ---------
     - `trainData` 训练集数据集
     - `trainLabel` 训练集标记
     - `testData` 测试集数据集
+    - `kernel` 核函数
     - `C` 软间隔惩罚参数
     - `epsilon` 松弛变量
     - `sigma` 高斯核函数参数
     - `p` 多项式核参数
 
-    ### Returns
+    Returns
+    -------
     - `predictLabel` 预测标签
     '''
     predictLabel = []
-    machine = SupportVectorMachine(C=C, epsilon=epsilon, sigma=sigma)
+    machine = SupportVectorMachine(
+        kernel=kernel, C=C, epsilon=epsilon, sigma=sigma)
     machine.train(trainData, trainLabel)
     with Progress(
         "[progress.description]{task.description}",
@@ -285,9 +352,3 @@ def predict(trainData, trainLabel, testData, C=200, epsilon=0.0001, sigma=10, p=
             progress.update(testTask, advance=1)
 
     return predictLabel
-
-
-if __name__ == '__main__':
-    SVM = SupportVectorMachine()
-    SVM.train([[3, 3], [4, 3], [1, 1]], [1, 1, -1])
-    print(SVM.classify([0, 4]))

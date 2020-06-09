@@ -1,3 +1,15 @@
+'''
+KNN(k-Nearest Neighbors)
+===
+    使用k-近邻算法预测分类标签
+Provides
+---------
+- 使用训练集`trainData`及训练集标签`trainLabel`，预测测试数据集`testData`的分类标签::
+
+    >>> predict(trainData, trainLabel, testData, K=27)
+
+'''
+
 import numpy as np
 from rich.progress import (
     BarColumn,
@@ -9,12 +21,15 @@ from rich.progress import (
 
 def distanceBetween(j, q):
     '''
-    ## 计算向量间 Minkowski 距离
-    ### Arguments
+    计算向量间 Minkowski 距离
+    ======================
+    Arguments
+    ---------
     - `j` 向量 $x_{j}$
     - `q` 向量 $x_{q}$
 
-    ### Returns
+    Returns
+    -------
     - 向量间 Minkowski 距离 $(\sum_{i}|x_{j,i} - x_{q,i}|^p)^{1/p}$
         - $p = 2$ 欧几里得距离
         - $p = 1$ 曼哈顿距离
@@ -25,14 +40,17 @@ def distanceBetween(j, q):
 
 def NearestNeighbor(trainData, trainLabel, testDatum, K):
     '''
-    ## 通过k-最近邻确定测试数据的标签
-    ### Arguments
+    通过k-最近邻确定测试数据的标签
+    ========================
+    Arguments
+    ---------
     - `trainData` 训练数据集
     - `trainLabel` 训练标签集
     - `testDatum` 测试数据样本
     - `K` 最近邻样本数目
 
-    ### Returns
+    Returns
+    -------
     - 预测标签
     '''
 
@@ -49,14 +67,17 @@ def NearestNeighbor(trainData, trainLabel, testDatum, K):
 
 def predict(trainData, trainLabel, testData, K=27):
     '''
-    ## 测试模型正确率
-    ### Arguments
+    测试模型正确率
+    ===========
+    Arguments
+    ---------
     - `trainData` 训练集数据集
     - `trainLabel` 训练集标记
     - `testData` 测试集数据集
     - `K` 选择近邻数
 
-    ### Returns
+    Returns
+    -------
     - `predictLabel` 预测标签
     '''
     predictLabel = []
