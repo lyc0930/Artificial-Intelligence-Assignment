@@ -81,17 +81,23 @@ def predict(trainData, trainLabel, testData, K=27):
     - `predictLabel` 预测标签
     '''
     predictLabel = []
-    with Progress(
+
+    progress = Progress(
         "[progress.description]{task.description}",
         BarColumn(bar_width=None),
         "[progress.percentage]{task.completed}/{task.total}",
         "•",
         TimeRemainingColumn(),
-    ) as progress:  # rich 进度条
-        testTask = progress.add_task(
-            "[cyan]predicting...", total=len(testData))
-        for x in testData:
-            predictLabel.append(NearestNeighbor(
-                trainData, trainLabel, x, K))  # 预测标签分类
-            progress.update(testTask, advance=1)
+    )  # rich 进度条
+    progress.start()
+
+    testTask = progress.add_task(
+        "[cyan]predicting...", total=len(testData))
+
+    for x in testData:
+        predictLabel.append(NearestNeighbor(
+            trainData, trainLabel, x, K))  # 预测标签分类
+        progress.update(testTask, advance=1)
+
+    progress.stop()
     return predictLabel

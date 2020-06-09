@@ -228,74 +228,79 @@ class SupportVectorMachine:
                 self.__K[i, j] = self.__K[j, i] = self.Kernel(
                     self.__x[i], self.__x[j])  # 计算核函数表
 
-        with Progress(
+        progress = Progress(
             "[progress.description]{task.description}",
             BarColumn(bar_width=None),
             "[progress.percentage]{task.completed}/{task.total}",
             "•",
             "[time]{task.elapsed:.2f}s",
-        ) as progress:  # rich 进度条
-            allSatisfied = False  # 全部满足 KKT 条件
-            iteration = 1  # 迭代次数
-            while not allSatisfied:
-                allSatisfied = True
-                iterateTask = progress.add_task(
-                    "[yellow]{} iterating...".format(iteration), total=self.__x.shape[0])
-                iteration += 1
-                for i in range(self.__x.shape[0]):  # 外层循环
-                    progress.update(iterateTask, advance=1)
-                    if not (self.__ifSatisfyKKT(i)):  # 选择第一个变量
-                        E1 = self.__Error(i)
-                        maximum = -1
-                        for k in range(self.__x.shape[0]):  # 内层循环
-                            tempE = self.__Error(k)
-                            tempE_difference = np.fabs(E1 - self.__Error(k))
-                            if tempE_difference > maximum:  # 选择第二个变量
-                                maximum = tempE_difference
-                                E2 = tempE
-                                j = k
-                        if maximum == -1:
-                            continue
+        )  # rich 进度条
+        progress.start()
 
-                        U = max(0, (self.__alpha[i] + self.__alpha[j] - self.__C) if self.__y[i]
-                                == self.__y[j] else (self.__alpha[j] - self.__alpha[i]))  # alpha^2_new 的下界
-                        V = min(self.__C, (self.__alpha[i] + self.__alpha[j]) if self.__y[i]
-                                == self.__y[j] else (self.__alpha[j] - self.__alpha[i] + self.__C))  # alpha^new_2 的上界
-                        alpha_2_new = self.__alpha[j] + self.__y[j] * (E1 - E2) / (
-                            self.__K[i, i] + self.__K[j, j] - 2 * self.__K[i, j])
+        allSatisfied = False  # 全部满足 KKT 条件
+        iteration = 1  # 迭代次数
+        while not allSatisfied:
+            allSatisfied = True
+            iterateTask = progress.add_task(
+                "[yellow]{} iterating...".format(iteration), total=self.__x.shape[0])
+            iteration += 1
+            for i in range(self.__x.shape[0]):  # 外层循环
+                progress.update(iterateTask, advance=1)
+                if not (self.__ifSatisfyKKT(i)):  # 选择第一个变量
+                    E1 = self.__Error(i)
+                    maximum = -1
+                    for k in range(self.__x.shape[0]):  # 内层循环
+                        tempE = self.__Error(k)
+                        tempE_difference = np.fabs(E1 - self.__Error(k))
+                        if tempE_difference > maximum:  # 选择第二个变量
+                            maximum = tempE_difference
+                            E2 = tempE
+                            j = k
+                    if maximum == -1:
+                        continue
 
-                        # alpha^2_new 越界
-                        if alpha_2_new > V:
-                            alpha_2_new = V
-                        elif alpha_2_new < U:
-                            alpha_2_new = U
+                    U = max(0, (self.__alpha[i] + self.__alpha[j] - self.__C) if self.__y[i]
+                            == self.__y[j] else (self.__alpha[j] - self.__alpha[i]))  # alpha^2_new 的下界
+                    V = min(self.__C, (self.__alpha[i] + self.__alpha[j]) if self.__y[i]
+                            == self.__y[j] else (self.__alpha[j] - self.__alpha[i] + self.__C))  # alpha^new_2 的上界
+                    alpha_2_new = self.__alpha[j] + self.__y[j] * (E1 - E2) / (
+                        self.__K[i, i] + self.__K[j, j] - 2 * self.__K[i, j])
 
-                        alpha_1_new = self.__alpha[i] + self.__y[i] * \
-                            self.__y[j] * (self.__alpha[j] - alpha_2_new)
+                    # alpha^2_new 越界
+                    if alpha_2_new > V:
+                        alpha_2_new = V
+                    elif alpha_2_new < U:
+                        alpha_2_new = U
 
-                        # 更新偏置
-                        b_1_new = -E1 - self.__y[i] * self.__K[i, i] * (
-                            alpha_1_new - self.__alpha[i]) - self.__y[j] * self.__K[j, i] * (alpha_2_new - self.__alpha[j]) + self.__b
-                        b_2_new = -E2 - self.__y[i] * self.__K[i, j] * (
-                            alpha_1_new - self.__alpha[i]) - self.__y[j] * self.__K[j, j] * (alpha_2_new - self.__alpha[j]) + self.__b
+                    alpha_1_new = self.__alpha[i] + self.__y[i] * \
+                        self.__y[j] * (self.__alpha[j] - alpha_2_new)
 
-                        # 实装更新
-                        if (np.fabs(self.__alpha[i] - alpha_1_new) < 0.0000001) and (np.fabs(self.__alpha[j] - alpha_2_new) < 0.0000001):
-                            continue
-                        else:
-                            allSatisfied = False
+                    # 更新偏置
+                    b_1_new = -E1 - self.__y[i] * self.__K[i, i] * (
+                        alpha_1_new - self.__alpha[i]) - self.__y[j] * self.__K[j, i] * (alpha_2_new - self.__alpha[j]) + self.__b
+                    b_2_new = -E2 - self.__y[i] * self.__K[i, j] * (
+                        alpha_1_new - self.__alpha[i]) - self.__y[j] * self.__K[j, j] * (alpha_2_new - self.__alpha[j]) + self.__b
 
-                        self.__alpha[i] = alpha_1_new
-                        self.__alpha[j] = alpha_2_new
+                    # 实装更新
+                    if (np.fabs(self.__alpha[i] - alpha_1_new) < 0.0000001) and (np.fabs(self.__alpha[j] - alpha_2_new) < 0.0000001):
+                        continue
+                    else:
+                        allSatisfied = False
 
-                        if 0 < alpha_1_new < self.__C:
-                            self.__b = b_1_new
-                        elif 0 < alpha_2_new < self.__C:
-                            self.__b = b_2_new
-                        else:
-                            self.__b = (b_1_new + b_2_new) / 2
+                    self.__alpha[i] = alpha_1_new
+                    self.__alpha[j] = alpha_2_new
 
-                progress.stop_task(iterateTask)
+                    if 0 < alpha_1_new < self.__C:
+                        self.__b = b_1_new
+                    elif 0 < alpha_2_new < self.__C:
+                        self.__b = b_2_new
+                    else:
+                        self.__b = (b_1_new + b_2_new) / 2
+
+            progress.stop_task(iterateTask)
+
+        progress.stop()
+
         return
 
     def classify(self, testDatum):
@@ -338,17 +343,22 @@ def predict(trainData, trainLabel, testData, kernel='Gaussian', C=200, epsilon=0
     machine = SupportVectorMachine(
         kernel=kernel, C=C, epsilon=epsilon, sigma=sigma)
     machine.train(trainData, trainLabel)
-    with Progress(
+
+    progress = Progress(
         "[progress.description]{task.description}",
         BarColumn(bar_width=None),
         "[progress.percentage]{task.completed}/{task.total}",
         "•",
         TimeRemainingColumn(),
-    ) as progress:  # rich 进度条
-        testTask = progress.add_task(
-            "[cyan]predicting...", total=len(testData))
-        for testDatum in testData:
-            predictLabel.append(machine.classify(testDatum))  # 预测标签分类
-            progress.update(testTask, advance=1)
+    )  # rich 进度条
+    progress.start()
 
+    testTask = progress.add_task(
+        "[cyan]predicting...", total=len(testData))
+
+    for testDatum in testData:
+        predictLabel.append(machine.classify(testDatum))  # 预测标签分类
+        progress.update(testTask, advance=1)
+
+    progress.stop()
     return predictLabel
