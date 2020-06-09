@@ -1,7 +1,10 @@
-import numpy as np
-import time
+import argparse
 import csv
+import time
+
+import numpy as np
 from sklearn import preprocessing
+
 import KNN
 import SVM
 
@@ -125,20 +128,68 @@ def gridSearch_Gaussian(trainData, trainLabel, testData, testLabel):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description='Simple machine learning test', epilog='PB17000297 罗晏宸 AI Programming Assignment 2', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    subparsers = parser.add_subparsers(
+        title='Learning Algorithms', dest='algorithm', required=True)
+
+    parser_KNN = subparsers.add_parser(
+        'KNN', help='k-Nearest Neighbors', description='k-Nearest Neighbors', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser_KNN.add_argument('-K', default=27, type=int,
+                            help='Number of chosen neighbors')
+
+    parser_SVM = subparsers.add_parser(
+        'SVM', help='Support Vector Machine', description='Support Vector Machine', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser_SVM.add_argument('-C', metavar='penalty', default=200, type=int,
+                            help='Soft margin penalty hyperparameter for support vector machine')
+    parser_SVM.add_argument('-t', '--toler', metavar='xi', dest='epsilon', default=0.0001,
+                            type=float, help='Slack variable (toler) for support vector machine')
+
+    subsubparsers = parser_SVM.add_subparsers(
+        title='Kernel Functions', dest='kernel')
+
+    parser_Gaussian = subsubparsers.add_parser(
+        'Gaussian', help='Gaussian kernel function(default)', description='Gaussian kernel function', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser_Gaussian.add_argument('-s', '--sigma', metavar='sigma', default=10, type=int,
+                                 help='Parameter of gaussian kernel function for support vector machine')
+
+    parser_Linear = subsubparsers.add_parser(
+        'Linear', help='Linear kernel function', description='Linear kernel function', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    parser_Polynomial = subsubparsers.add_parser(
+        'Polynomial', help='Polynomial kernel function', description='Polynomial kernel function', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser_Polynomial.add_argument('-p', default=2, type=int,
+                                   help='Parameter of polynomial kernel function for support vector machine')
+    args = parser.parse_args()
+
+    if args.algorithm == 'SVM' and args.kernel == None:  # 默认核函数
+        args.kernel = 'Gaussian'
+        args.sigma = 10
+
     start = time.time()
 
-    trainData, _, trainLabel = loadData(
-        '../DataSet/student/student-por.csv', Normalize=True, Methods='SupportVectorMachine')  # 训练数据
+    if args.algorithm == 'KNN':
+        trainData, _, trainLabel = loadData(
+            '../DataSet/student/student-mat.csv', Methods='NearestNeighbors')  # 训练数据
 
-    testData, _, testLabel = loadData(
-        '../DataSet/student/student-mat.csv', Normalize=True, Methods='SupportVectorMachine')  # 测试数据
+        testData, _, testLabel = loadData(
+            '../DataSet/student/student-por.csv', Methods='NearestNeighbors')  # 测试数据
 
-    # predictLabel = KNN.predict(trainData, trainLabel, testData)
-    predictLabel = SVM.predict(
-        trainData, trainLabel, testData, kernel='Gaussian', C=200, sigma=10, epsilon=0.001)
+        predictLabel = KNN.predict(trainData, trainLabel, testData, K=args.K)
+
+    elif args.algorithm == 'SVM':
+        trainData, _, trainLabel = loadData(
+            '../DataSet/student/student-mat.csv', Normalize=True, Methods='SupportVectorMachine')  # 训练数据
+
+        testData, _, testLabel = loadData(
+            '../DataSet/student/student-por.csv', Normalize=True, Methods='SupportVectorMachine')  # 测试数据
+
+        predictLabel = SVM.predict(trainData, trainLabel, testData, C=args.C, epsilon=args.epsilon, kernel=args.kernel,
+                                   sigma=args.sigma if args.kernel == 'Gaussian' else None, p=args.p if args.kernel == 'Polynomial' else None)
 
     # gridSearch_Gaussian(trainData, trainLabel, testData, testLabel)
 
     end = time.time()
-    print('predicting time: {:.4}'.format(end - start))
+    print('Elapsed time: {:.4}s'.format(end - start))
     print('F1 score: {:%}'.format(modelTest(testLabel, predictLabel)))
