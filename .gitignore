@@ -3,6 +3,6 @@
 *.vscode
 Assignment1/digit/src/digit
 Assignment1/sudoku/src/sudoku
-Assignment2/DataSet/student.zip
+Assignment2/supervise/data/student.zip
 __pycache__
 
