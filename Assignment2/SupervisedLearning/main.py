@@ -7,6 +7,7 @@ from sklearn import preprocessing
 
 import KNN
 import SVM
+import LR
 
 
 def loadData(file, Normalize=False, Methods='NearestNeighbors'):
@@ -128,6 +129,7 @@ def gridSearch_Gaussian(trainData, trainLabel, testData, testLabel):
 
 
 if __name__ == "__main__":
+    # 命令行参数分析
     parser = argparse.ArgumentParser(
         description='Simple machine learning test', epilog='PB17000297 罗晏宸 AI Programming Assignment 2', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
@@ -161,6 +163,14 @@ if __name__ == "__main__":
         'Polynomial', help='Polynomial kernel function', description='Polynomial kernel function', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser_Polynomial.add_argument('-p', default=2, type=int,
                                    help='Parameter of polynomial kernel function for support vector machine')
+
+    parser_LR = subparsers.add_parser(
+        'LR', help='Logistic Regression', description='Logistic Regression', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser_LR.add_argument('-i', '--iteration', metavar='i', dest='iteration',
+                           default=200, type=int, help='Number of iteration')
+    parser_LR.add_argument('-r', '--rate', metavar='alpha', dest='learning_rate',
+                           default=0.0001, type=float, help='Rate of learning')
+
     args = parser.parse_args()
 
     if args.algorithm == 'SVM' and args.kernel == None:  # 默认核函数
@@ -169,7 +179,7 @@ if __name__ == "__main__":
 
     start = time.time()
 
-    if args.algorithm == 'KNN':
+    if args.algorithm == 'KNN':  # k-近邻算法
         trainData, _, trainLabel = loadData(
             '../DataSet/student/student-mat.csv', Methods='NearestNeighbors')  # 训练数据
 
@@ -178,7 +188,7 @@ if __name__ == "__main__":
 
         predictLabel = KNN.predict(trainData, trainLabel, testData, K=args.K)
 
-    elif args.algorithm == 'SVM':
+    elif args.algorithm == 'SVM':  # 支持向量机算法
         trainData, _, trainLabel = loadData(
             '../DataSet/student/student-mat.csv', Normalize=True, Methods='SupportVectorMachine')  # 训练数据
 
@@ -187,6 +197,16 @@ if __name__ == "__main__":
 
         predictLabel = SVM.predict(trainData, trainLabel, testData, C=args.C, epsilon=args.epsilon, kernel=args.kernel,
                                    sigma=args.sigma if args.kernel == 'Gaussian' else None, p=args.p if args.kernel == 'Polynomial' else None)
+
+    elif args.algorithm == 'LR':  # Logistic 回归算法
+        trainData, _, trainLabel = loadData(
+            '../DataSet/student/student-mat.csv', Methods='NearestNeighbors')  # 训练数据
+
+        testData, _, testLabel = loadData(
+            '../DataSet/student/student-por.csv', Methods='NearestNeighbors')  # 测试数据
+
+        predictLabel = LR.predict(trainData, trainLabel, testData,
+                                  iteration=args.iteration, learning_rate=args.learning_rate)
 
     # gridSearch_Gaussian(trainData, trainLabel, testData, testLabel)
 
