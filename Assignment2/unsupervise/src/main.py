@@ -132,7 +132,27 @@ def KMeans(k, data):
             centroids[j] = np.mean(
                 data[np.nonzero(cluster == j)], axis=0)  # 根据类别更新质心
 
-    return cluster + 1  # 以正整数表示类别
+    a = [0] * data.shape[0]
+    b = [0] * data.shape[0]
+    Silhouette = [0] * data.shape[0]
+    for i in range(data.shape[0]):
+        a[i] = np.mean([distanceBetween(data[i], data[j]) for j in range(
+            data.shape[0]) if i != j and cluster[i] == cluster[j]])  # i 到其簇中其他点距离的均值
+
+        minNeighborDistance = float("inf")
+        minNeighborCentroid = 0
+        for j in range(k):
+            if (distance:=distanceBetween(data[i], centroids[j])) < minNeighborDistance and j != cluster[i]: # 计算观测到质心距离
+                minNeighborDistance = distance
+                minNeighborCentroid = j
+        b[i] = np.mean([distanceBetween(data[i], data[j]) for j in range(
+            data.shape[0]) if cluster[j] == minNeighborCentroid])  # i 到相邻簇中所有点距离的均值
+        Silhouette[i] = (b[i] - a[i]) / max(a[i], b[i])
+
+    data_clustered = np.insert(
+        data, 0, values=cluster + 1, axis=1)  # 以首列的正整数表示类别
+
+    return data_clustered, np.mean(Silhouette)
 
 
 if __name__ == "__main__":
