@@ -68,8 +68,73 @@ def PCA(data, threshold):
     return lowerDimensionalData
 
 
+def distanceBetween(j, q):
+    '''
+    计算向量间欧式距离
+    ======================
+    Arguments
+    ---------
+    - `j` 向量 $x_{j}$
+    - `q` 向量 $x_{q}$
+
+    Formula
+    -------
+        sqrt(sum_{i}|x_{j,i} - x_{q,i}|^2)
+
+    Returns
+    -------
+    - 向量间 Minkowski 欧几里得距离
+    '''
+    return np.sqrt(np.sum(np.square(j - q)))  # Euclidean metric
+
+
+def KMeans(k, data):
+    '''
+    使用 k-means 算法将数据进行聚类
+    ===
+    Arguments
+    ---------
+    - `k` 聚类数
+    - `data` （降维后的）数据矩阵
+
+    Algorithm
+    ---------
+    - k-means
+
+    Returns
+    -------
+    - 聚类后的数据
+    - 聚类的轮廓系数
+    '''
+
+    centroids = np.empty([k, data.shape[1]], dtype=float)  # 簇质心
+    for i in range(k):
+        index = np.random.randint(data.shape[0])  # 随机下标
+        centroids[i] = data[index]  # Forgy 方法：选取随机观测作为初始质心
+
+    isClusteringChanged = True  # 聚类是否改变
+    cluster = np.zeros(data.shape[0], dtype=int)   # 类别
+
+    while isClusteringChanged:
+        isClusteringChanged = False
+        for i in range(data.shape[0]):  # 更新质心
+            minDistance = float("inf")
+            minCentroid = 0
+            for j in range(k):
+                if (distance:=distanceBetween(data[i], centroids[j])) < minDistance: # 计算观测到质心距离
+                    minDistance = distance
+                    minCentroid = j
+            if cluster[i] != minCentroid:
+                cluster[i] = minCentroid
+                isClusteringChanged = True
+
+        for j in range(k):
+            centroids[j] = np.mean(
+                data[np.nonzero(cluster == j)], axis=0)  # 根据类别更新质心
+
+    return cluster + 1  # 以正整数表示类别
+
+
 if __name__ == "__main__":
     Data, Identifiers = loadData('../data/wine/wine.data')
-    print(Data)
-    print(Identifiers)
-    print(PCA(Data, 0.8))
+    print(KMeans(3, PCA(Data, 0.8)))
