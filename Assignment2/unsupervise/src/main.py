@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def loadData(file):
@@ -156,5 +157,15 @@ def KMeans(k, data):
 
 
 if __name__ == "__main__":
-    Data, Identifiers = loadData('../data/wine/wine.data')
-    print(KMeans(3, PCA(Data, 0.8)))
+    Data, Identifiers = loadData('../data/wine/wine.data')  # 读取数据与实际类别
+
+    silhouetteCoefficient = []
+    for k in range(1, 13):
+        data_clustered, silhouette = KMeans(k, PCA(Data, 0.99))
+        silhouetteCoefficient.append(silhouette)
+
+    plt.bar(list(range(1, 13)), silhouetteCoefficient, align='center')
+    plt.title('Silhouette Graph')
+    plt.xlabel('k-cluster')
+    plt.ylabel('Silhouette Coefficient')
+    plt.show()
