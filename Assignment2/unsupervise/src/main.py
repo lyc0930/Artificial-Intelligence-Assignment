@@ -156,6 +156,47 @@ def KMeans(k, data):
     return data_clustered, np.mean(Silhouette)
 
 
+def clusterTest(trueLabel, clusterLabel):
+    '''
+    评价聚类效果
+    ===========
+    Arguments
+    ---------
+    - `trueLabel` 实际标签
+    - `clusterLabel` 聚类标签
+
+    Formula
+    -------
+        (a + d) / (a + b + c + d)
+        - a 为在 trueLabel 中属同一类且在 clusterLabel 中也属同一类的数据点对数
+        - b 为在 trueLabel 中属同一类但在 clusterLabel 中不属同一类的数据点对数
+        - c 为在 trueLabel 中不属同一类但在 clusterLabel 中属同一类的数据点对数
+        - d 为在 trueLabel 中不属同一类且在 clusterLabel 中也不属同一类的数据点对数
+
+    Returns
+    -------
+    - 兰德系数(Rand index, RI)
+    '''
+
+    a = b = c = d = 0
+    for i in range(len(trueLabel)):
+        for j in range(i + 1, len(trueLabel)):  # 遍历数据点对
+            if trueLabel[i] == trueLabel[j]:  # 在 trueLabel 中属同一类
+                if clusterLabel[i] == clusterLabel[j]:  # 在 clusterLabel 中也属同一类
+                    a += 1
+                else:  # 在 clusterLabel 中不属同一类
+                    b += 1
+            else:  # 在 trueLabel 中不属同一类
+                if clusterLabel[i] == clusterLabel[j]:  # 在 clusterLabel 中属同一类
+                    c += 1
+                else:  # 在 clusterLabel 中也不属同一类
+                    d += 1
+    print('a = {:3}  b = {:3}'.format(a, b))
+    print('c = {:3}  d = {:3}'.format(c, d))
+
+    return (a + d) / (a + b + c + d)  # 兰德系数
+
+
 if __name__ == "__main__":
     Data, Identifiers = loadData('../data/wine/wine.data')  # 读取数据与实际类别
 
@@ -169,3 +210,6 @@ if __name__ == "__main__":
     plt.xlabel('k-cluster')
     plt.ylabel('Silhouette Coefficient')
     plt.show()
+
+    data_clustered, silhouette = KMeans(3, PCA(Data, 0.99))
+    print(clusterTest(Identifiers, data_clustered[:, 0]))
