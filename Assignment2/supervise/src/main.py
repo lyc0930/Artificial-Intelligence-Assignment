@@ -182,29 +182,29 @@ if __name__ == "__main__":
 
     if args.algorithm == 'KNN':  # k-近邻算法
         trainData, _, trainLabel = loadData(
-            '../data/student/student-mat.csv', Methods='NearestNeighbors')  # 训练数据
+            '../data/student/student-por.csv', Methods='NearestNeighbors')  # 训练数据
 
         testData, _, testLabel = loadData(
-            '../data/student/student-por.csv', Methods='NearestNeighbors')  # 测试数据
+            '../data/student/student-mat.csv', Methods='NearestNeighbors')  # 测试数据
 
         predictLabel = KNN.predict(trainData, trainLabel, testData, K=args.K)
 
     elif args.algorithm == 'SVM':  # 支持向量机算法
         trainData, _, trainLabel = loadData(
-            '../data/student/student-mat.csv', Normalize=True, Methods='SupportVectorMachine')  # 训练数据
+            '../data/student/student-por.csv', Normalize=True, Methods='SupportVectorMachine')  # 训练数据
 
         testData, _, testLabel = loadData(
-            '../data/student/student-por.csv', Normalize=True, Methods='SupportVectorMachine')  # 测试数据
+            '../data/student/student-mat.csv', Normalize=True, Methods='SupportVectorMachine')  # 测试数据
 
         predictLabel = SVM.predict(trainData, trainLabel, testData, C=args.C, epsilon=args.epsilon, kernel=args.kernel,
                                    sigma=args.sigma if args.kernel == 'Gaussian' else None, p=args.p if args.kernel == 'Polynomial' else None)
 
     elif args.algorithm == 'LR':  # Logistic 回归算法
         trainData, _, trainLabel = loadData(
-            '../data/student/student-mat.csv', Methods='LogisticRegression')  # 训练数据
+            '../data/student/student-por.csv', Methods='LogisticRegression')  # 训练数据
 
         testData, _, testLabel = loadData(
-            '../data/student/student-por.csv', Methods='LogisticRegression')  # 测试数据
+            '../data/student/student-mat.csv', Methods='LogisticRegression')  # 测试数据
 
         predictLabel = LR.predict(trainData, trainLabel, testData,
                                   iteration=args.iteration, learning_rate=args.learning_rate)
