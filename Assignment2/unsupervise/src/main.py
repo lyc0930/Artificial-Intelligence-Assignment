@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import csv
 
 
 def loadData(file):
@@ -12,8 +13,10 @@ def loadData(file):
 
     Returns
     -------
-    - `` 数据集
+    - `Data` 数据集
+    - `Identifiers` 类别标签
     '''
+
     print('start reading ' + file)
     Attributes = []
     Identifiers = []
@@ -29,6 +32,25 @@ def loadData(file):
         standardDeviation = np.std(Data, axis=0)  # 属性方差
         Data = (Data - average) / standardDeviation  # Z-Score 标准化
     return Data, Identifiers
+
+
+def saveData(data, file):
+    '''
+    保存聚类后的数据
+    ========
+    Arguments
+    ---------
+    - `data` 聚类后数据
+    - `file` 文件目录
+
+    Returns
+    -------
+    '''
+
+    print('start writeing ' + file)
+    with open(file, "w") as fileStream:
+        csvWriter = csv.writer(fileStream)
+        csvWriter.writerows(data)
 
 
 def PCA(data, threshold):
@@ -191,8 +213,8 @@ def clusterTest(trueLabel, clusterLabel):
                     c += 1
                 else:  # 在 clusterLabel 中也不属同一类
                     d += 1
-    print('a = {:3}  b = {:3}'.format(a, b))
-    print('c = {:3}  d = {:3}'.format(c, d))
+    print('a = {:5}  b = {:5}'.format(a, b))
+    print('c = {:5}  d = {:5}'.format(c, d))
 
     return (a + d) / (a + b + c + d)  # 兰德系数
 
@@ -209,7 +231,8 @@ if __name__ == "__main__":
     plt.title('Silhouette Graph')
     plt.xlabel('k-cluster')
     plt.ylabel('Silhouette Coefficient')
-    plt.show()
+    plt.savefig('../output/SilhouetteCoefficient.png')  # 显示类别数与轮廓系数关系
 
     data_clustered, silhouette = KMeans(3, PCA(Data, 0.99))
-    print(clusterTest(Identifiers, data_clustered[:, 0]))
+    saveData(data_clustered, '../output/wine_clustered.csv')  # 聚类后结果保存至 csv 文件
+    print('Rand index = ', clusterTest(Identifiers, data_clustered[:, 0]))
