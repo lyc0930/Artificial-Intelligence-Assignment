@@ -85,8 +85,8 @@ def PCA(data, threshold):
             break
         total_m += eigenValues[eigenValuesIndices[m]]
     # 选取前 m 个特征值对应的特征向量，作为新的特征空间的一组基
-    eigenVectors_m = eigenVectors[eigenValuesIndices[0:m]]
-    lowerDimensionalData = np.dot(data, eigenVectors_m.T)  # 原始数据乘以基实现降维
+    eigenVectors_m = eigenVectors[:, eigenValuesIndices[0:m]]
+    lowerDimensionalData = np.dot(data, eigenVectors_m)  # 原始数据乘以基实现降维
 
     return lowerDimensionalData
 
