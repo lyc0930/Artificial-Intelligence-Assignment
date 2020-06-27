@@ -1,5 +1,7 @@
 import argparse
 import csv
+import math
+import random
 import time
 
 import numpy as np
@@ -67,6 +69,49 @@ def loadData(file, Normalize=False, Methods='NearestNeighbors'):
     return list(np.hstack((Data_withoutG, Grades))), Data_withoutG, Label
 
 
+def dataSplit(data, label, train_size=0.7, test_size=0.3, shuffle=True):
+    '''
+    划分数据集
+    ========
+    Arguments
+    ---------
+    - `data` 原始数据属性
+    - `label` 原始数据标签
+    - `train_size` 训练集比例
+    - `test_size` 测试集比例
+    - `shuffle` 是否打乱
+
+    Returns
+    -------
+    - `trainData` 训练集数据
+    - `testData` 测试集数据
+    - `trainLabel` 训练集标签
+    - `testLabel` 测试集标签
+    '''
+
+    if train_size + test_size > 1:
+        raise ValueError(
+            f'The sum of test_size and train_size = {train_size + test_size}, should be in the (0, 1) range. Reduce test_size and/or train_size.')  # 从 sklearn 里抄来的报错
+
+    # 以同样次序打乱数据和标签
+    if shuffle:
+        randomSeed = random.randint(0, 100)
+        random.seed(randomSeed)
+        random.shuffle(data)
+        random.seed(randomSeed)
+        random.shuffle(label)
+
+    trainStripIndex = math.floor(train_size * len(data))
+    testStripIndex = math.ceil(test_size * len(data))
+
+    trainData = data[0: trainStripIndex]
+    testData = data[trainStripIndex: trainStripIndex + testStripIndex]
+    trainLabel = label[0: trainStripIndex]
+    testLabel = label[trainStripIndex: trainStripIndex + testStripIndex]
+
+    return trainData, testData, trainLabel, testLabel
+
+
 def modelTest(testLabel, predictLabel):
     '''
     测试模型正确率
@@ -130,9 +175,15 @@ def gridSearch_Gaussian(trainData, trainLabel, testData, testLabel):
 
 
 if __name__ == "__main__":
-    # 命令行参数分析
+    # 以下是命令行参数分析
     parser = argparse.ArgumentParser(
         description='Simple machine learning test', epilog='PB17000297 罗晏宸 AI Programming Assignment 2', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    parser.add_argument('-d', '--dataset',
+                        choices=['math', 'portuguese'], help='Dataset of the learning task')
+
+    parser.add_argument('-G', dest='useGrade',
+                        action='store_true', help='Use G1 & G2 as in attributes or not')
 
     subparsers = parser.add_subparsers(
         title='Learning Algorithms', dest='algorithm', required=True)
@@ -177,34 +228,38 @@ if __name__ == "__main__":
     if args.algorithm == 'SVM' and args.kernel == None:  # 默认核函数
         args.kernel = 'Gaussian'
         args.sigma = 10
+    # 以上是命令行参数分析
 
     start = time.time()
 
-    if args.algorithm == 'KNN':  # k-近邻算法
-        trainData, _, trainLabel = loadData(
-            '../data/student/student-por.csv', Methods='NearestNeighbors')  # 训练数据
+    if args.dataset == 'math':
+        dataFile = '../data/student/student-mat.csv'
+    else:
+        dataFile = '../data/student/student-por.csv'
 
-        testData, _, testLabel = loadData(
-            '../data/student/student-mat.csv', Methods='NearestNeighbors')  # 测试数据
+    if args.algorithm == 'KNN':  # k-近邻算法
+        originData = loadData(dataFile, Methods='NearestNeighbors')  # 读取数据
+
+        trainData, testData, trainLabel, testLabel = dataSplit(
+            originData[0 if args.useGrade else 1], originData[2])  # 划分数据
 
         predictLabel = KNN.predict(trainData, trainLabel, testData, K=args.K)
 
     elif args.algorithm == 'SVM':  # 支持向量机算法
-        trainData, _, trainLabel = loadData(
-            '../data/student/student-por.csv', Normalize=True, Methods='SupportVectorMachine')  # 训练数据
+        originData = loadData(dataFile, Normalize=True,
+                              Methods='SupportVectorMachine')  # 读取数据
 
-        testData, _, testLabel = loadData(
-            '../data/student/student-mat.csv', Normalize=True, Methods='SupportVectorMachine')  # 测试数据
+        trainData, testData, trainLabel, testLabel = dataSplit(
+            originData[0 if args.useGrade else 1], originData[2])  # 划分数据
 
         predictLabel = SVM.predict(trainData, trainLabel, testData, C=args.C, epsilon=args.epsilon, kernel=args.kernel,
                                    sigma=args.sigma if args.kernel == 'Gaussian' else None, p=args.p if args.kernel == 'Polynomial' else None)
 
     elif args.algorithm == 'LR':  # Logistic 回归算法
-        trainData, _, trainLabel = loadData(
-            '../data/student/student-por.csv', Methods='LogisticRegression')  # 训练数据
+        originData = loadData(dataFile, Methods='LogisticRegression')  # 读取数据
 
-        testData, _, testLabel = loadData(
-            '../data/student/student-mat.csv', Methods='LogisticRegression')  # 测试数据
+        trainData, testData, trainLabel, testLabel = dataSplit(
+            originData[0 if args.useGrade else 1], originData[2])  # 划分数据
 
         predictLabel = LR.predict(trainData, trainLabel, testData,
                                   iteration=args.iteration, learning_rate=args.learning_rate)
