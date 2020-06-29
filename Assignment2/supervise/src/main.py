@@ -148,6 +148,9 @@ def modelTest(testLabel, predictLabel):
     precision = truePositive / (truePositive + falsePositive)
     recall = truePositive / (truePositive + falseNegative)
 
+    print('Precision = {:%}'.format(precision))
+    print('Recall    = {:%}'.format(recall))
+
     return (2 * precision * recall) / (precision + recall)
 
 
