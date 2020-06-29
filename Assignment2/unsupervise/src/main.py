@@ -53,7 +53,7 @@ def saveData(data, file):
         csvWriter.writerows(data)
 
 
-def PCA(data, threshold):
+def PCA(data, threshold, dimension=None):
     '''
     利用主成分分析对数据矩阵进行降维
     ===
@@ -61,6 +61,7 @@ def PCA(data, threshold):
     ---------
     - `data` （Z-Score 标准化后的）数据矩阵
     - `threshold` 特征值的累计贡献率
+    - `dimension` 显式指定降维后的维度
 
     Algorithm
     ---------
@@ -85,6 +86,8 @@ def PCA(data, threshold):
             break
         total_m += eigenValues[eigenValuesIndices[m]]
     # 选取前 m 个特征值对应的特征向量，作为新的特征空间的一组基
+    if dimension != None:
+        m = dimension  # 显式指定维数
     eigenVectors_m = eigenVectors[:, eigenValuesIndices[0:m]]
     lowerDimensionalData = np.dot(data, eigenVectors_m)  # 原始数据乘以基实现降维
 
@@ -220,19 +223,27 @@ def clusterTest(trueLabel, clusterLabel):
 
 
 if __name__ == "__main__":
-    Data, Identifiers = loadData('../data/wine/wine.data')  # 读取数据与实际类别
+    Data, Identifiers = loadData('../input/wine/wine.data')  # 读取数据与实际类别
 
-    silhouetteCoefficient = []
-    for k in range(1, 13):
-        data_clustered, silhouette = KMeans(k, PCA(Data, 0.99))
-        silhouetteCoefficient.append(silhouette)
+    # silhouetteCoefficient = []
+    # for k in range(1, 13):
+    #     data_clustered, silhouette = KMeans(k, PCA(Data, 0.99))
+    #     silhouetteCoefficient.append(silhouette)
 
-    plt.bar(list(range(1, 13)), silhouetteCoefficient, align='center')
-    plt.title('Silhouette Graph')
-    plt.xlabel('k-cluster')
-    plt.ylabel('Silhouette Coefficient')
-    plt.savefig('../output/SilhouetteCoefficient.png')  # 显示类别数与轮廓系数关系
+    # plt.bar(list(range(1, 13)), silhouetteCoefficient, align='center')
+    # plt.title('Silhouette Graph')
+    # plt.xlabel('k-cluster')
+    # plt.ylabel('Silhouette Coefficient')
+    # plt.savefig('../output/SilhouetteCoefficient.png')  # 显示类别数与轮廓系数关系
 
     data_clustered, silhouette = KMeans(3, PCA(Data, 0.99))
     saveData(data_clustered, '../output/wine_clustered.csv')  # 聚类后结果保存至 csv 文件
     print('Rand index = ', clusterTest(Identifiers, data_clustered[:, 0]))
+
+    # data_clustered, silhouette = KMeans(3, Data)  # 不经过降维
+    # print('Rand index = ', clusterTest(Identifiers, data_clustered[:, 0]))
+
+    # for k in range(1, 13):
+    #     data_clustered, silhouette = KMeans(k, Data)
+    #     print('k=', k, 'S= ', silhouette, 'Rand index = ', clusterTest(
+    #         Identifiers, data_clustered[:, 0]))
