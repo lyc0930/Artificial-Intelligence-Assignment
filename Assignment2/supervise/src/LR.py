@@ -94,6 +94,7 @@ class LogisticRegressionClassifier:
                 progress.update(trainTask, advance=1 / self.__x.shape[0])
 
         progress.stop()
+        return
 
     def classify(self, testDatum):
         '''
@@ -108,7 +109,7 @@ class LogisticRegressionClassifier:
         - 分类决策函数值
         '''
         h = self.__sigmoid(
-            np.dot(self.__weights, np.insert(testDatum, 0, values=1.0)))
+            np.dot(self.__weights, np.insert(testDatum, 0, values=1.0)))  # 增加哑变量
         return 1 if h >= 0.5 else 0  # 二分类
 
 
