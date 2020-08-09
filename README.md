@@ -12,5 +12,10 @@
 
 ### [搜索](https://github.com/lyc0930/Artificial-Intelligence-Assignment/tree/master/Assignment1)
 
--   数码问题
--   数独问题
+-   [数码问题](https://github.com/lyc0930/Artificial-Intelligence-Assignment/tree/master/Assignment1/digit)
+-   [数独问题](https://github.com/lyc0930/Artificial-Intelligence-Assignment/tree/master/Assignment1/sudoku)
+
+### [学习](https://github.com/lyc0930/Artificial-Intelligence-Assignment/tree/master/Assignment2)
+
+-   [监督学习](https://github.com/lyc0930/Artificial-Intelligence-Assignment/tree/master/Assignment2/supervise)
+-   [非监督学习](https://github.com/lyc0930/Artificial-Intelligence-Assignment/tree/master/Assignment2/unsupervise)
